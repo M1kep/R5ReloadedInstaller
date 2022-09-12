@@ -17,7 +17,7 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 	}
 	defer archive.Close()
 
-	pb := uiprogress.AddBar(len(archive.File))
+	pb := uiprogress.AddBar(len(archive.File)).AppendCompleted()
 	pb.PrependFunc(func(b *uiprogress.Bar) string {
 		return progressMessage
 	})
@@ -34,7 +34,6 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 		} else {
 			filePath = filepath.Join(destinationPath, f.Name)
 		}
-		pb.Incr()
 
 		if !strings.HasPrefix(filePath, filepath.Clean(destinationPath)+string(os.PathSeparator)) {
 			return fmt.Errorf("invalid file path")
@@ -42,6 +41,7 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 
 		if f.FileInfo().IsDir() {
 			os.MkdirAll(filePath, os.ModePerm)
+			pb.Incr()
 			continue
 		}
 
@@ -62,10 +62,10 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
 			panic(err)
 		}
+		pb.Incr()
 
 		dstFile.Close()
 		fileInArchive.Close()
 	}
-
 	return nil
 }

@@ -22,7 +22,7 @@ func IsR5Folder(path string) bool {
 	return false
 }
 
-func IsInR5Folder() bool {
+func IsRunningInR5Folder() bool {
 	path, err := os.Getwd()
 	if err != nil {
 		log.Fatal(fmt.Errorf("error retrieving current directory while validating r5Path: %v", err))

@@ -1,6 +1,7 @@
 package download
 
 import (
+	"R5ReloadedInstaller/pkg/download"
 	"context"
 	"fmt"
 	"github.com/google/go-github/v47/github"
@@ -21,11 +22,10 @@ func GetLatestRepoRelease(ghClient *github.Client, wg *sync.WaitGroup, progressM
 
 	go func() {
 		defer wg.Done()
-		err := DownloadFile(sdkOutputPath, downloadUrl, progressMessage)
+		err := download.DownloadFile(sdkOutputPath, downloadUrl, progressMessage)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error downloading release(%s) for %s/%s: %v", *latestRelease.TagName, repoOwner, repoName, err))
 		}
-		print(fmt.Sprintf("Finished downloading: %s", downloadUrl))
 	}()
 
 	return sdkOutputPath, nil
@@ -49,10 +49,9 @@ func GetLatestRepoContents(ghClient *github.Client, wg *sync.WaitGroup, progress
 	downloadUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/zipball/%s", repoOwner, repoName, *ghRepo.DefaultBranch)
 	outputPath = filepath.Join(cacheDirectory, fmt.Sprintf("%s-%s_%s.zip", cacheName, *ghRepo.DefaultBranch, latestCommitShortSHA))
 
-	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := DownloadFile(outputPath, downloadUrl, progressMessage)
+		err := download.DownloadFile(outputPath, downloadUrl, progressMessage)
 		if err != nil {
 			log.Fatal(fmt.Errorf("error downloading repo contents from %s/%s for commit %s: %v", repoOwner, repoName, latestCommitShortSHA, err))
 		}

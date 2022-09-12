@@ -2,12 +2,13 @@ package download
 
 import (
 	"github.com/gosuri/uiprogress"
+	"log"
 )
 
-// WriteCounter counts the number of bytes written to it. It implements to the io.Writer
+// WriteTracker counts the number of bytes written to it. It implements to the io.Writer
 // interface and we can pass this into io.TeeReader() which will report progress on each
 // write cycle.
-type WriteCounter struct {
+type WriteTracker struct {
 	Pb            *uiprogress.Bar
 	Total         int
 	ContentLength int
@@ -15,23 +16,23 @@ type WriteCounter struct {
 	nextUpdate int
 }
 
-func (wc *WriteCounter) Write(p []byte) (int, error) {
+func (wt *WriteTracker) Write(p []byte) (int, error) {
 	n := len(p)
-	wc.Total += n
+	wt.Total += n
 
-	if wc.Total > wc.nextUpdate && wc.ContentLength != 0 {
-		wc.UpdateProgress()
-		wc.nextUpdate = wc.nextUpdate + (wc.ContentLength / 100)
+	if (wt.Total > wt.nextUpdate || wt.Total == wt.ContentLength) && wt.ContentLength != 0 {
+		hundredthOfContentLen := wt.ContentLength / 100
+		wt.UpdateProgress()
+		wt.nextUpdate = (wt.Total/wt.ContentLength)*hundredthOfContentLen + hundredthOfContentLen
 	}
 	return n, nil
 }
 
-func (wc *WriteCounter) UpdateProgress() {
-	if wc.ContentLength != 0 {
-		wc.Pb.Incr()
-		//err := wc.Pb.Set(wc.Total)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
+func (wt *WriteTracker) UpdateProgress() {
+	if wt.ContentLength != 0 {
+		err := wt.Pb.Set(wt.Total)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
