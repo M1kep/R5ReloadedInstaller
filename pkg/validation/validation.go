@@ -2,30 +2,29 @@ package validation
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
 
-func IsR5Folder(path string) bool {
+func IsR5Folder(path string) (bool, error) {
 	filesInDir, err := os.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("error while reading path '%s': %v", path, err)
 	}
 
 	for _, file := range filesInDir {
 		if file.Name() == "r5apex.exe" {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
-func IsRunningInR5Folder() bool {
+func IsRunningInR5Folder() (bool, error) {
 	path, err := os.Getwd()
 	if err != nil {
-		log.Fatal(fmt.Errorf("error retrieving current directory while validating r5Path: %v", err))
+		return false, fmt.Errorf("error retrieving current directory while validating r5Path: %v", err)
 	}
 
 	return IsR5Folder(path)

@@ -9,7 +9,12 @@ import (
 )
 
 func getValidatedR5Folder() (validatedFolder string, err error) {
-	if validation.IsRunningInR5Folder() {
+	isRunningInR5Folder, err := validation.IsRunningInR5Folder()
+	if err != nil {
+		return "", err
+	}
+
+	if isRunningInR5Folder {
 		validatedFolder, err := os.Getwd()
 		if err != nil {
 			return "", fmt.Errorf("error retrieving current directory while validating r5Path: %v", err)
@@ -25,7 +30,11 @@ func getValidatedR5Folder() (validatedFolder string, err error) {
 	}
 
 	pathFromArgs := os.Args[1]
-	if validation.IsR5Folder(pathFromArgs) {
+	isPathR5Folder, err := validation.IsR5Folder(pathFromArgs)
+	if err != nil {
+		return "", err
+	}
+	if isPathR5Folder {
 		validatedFolder = pathFromArgs
 	} else {
 		_ = dialog.Raise("Please move the R5RInstaller into your R5 Directory or pass correct path via arguments")

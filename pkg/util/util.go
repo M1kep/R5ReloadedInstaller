@@ -46,17 +46,7 @@ func GetContentLengthFromURL(url string) (contentLength int, err error) {
 	return contentLength, nil
 }
 
-func ExitWithAlertDialog(fromError bool) {
-	if fromError {
-		_ = dialog.Error("Program encountered error. See console for logs.")
-	} else {
-		_ = dialog.Raise("Success. Confirm to close terminal.")
-	}
-
-	os.Exit(1)
-}
-
-func ExitOnError(err error) {
+func LogErrorWithDialog(err error) {
 	fmt.Println(err)
-	ExitWithAlertDialog(true)
+	_ = dialog.Error("Program encountered error. See console for logs.")
 }
