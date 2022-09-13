@@ -2,7 +2,12 @@
 
 ## What
 
-This application assists with downloading and extracting files required for using [R5Reloaded](https://github.com/M1kep/R5ReloadedInstaller).
+This application assists with downloading and extracting files required for using [R5Reloaded](https://github.com/Mauler125/r5sdk).
+
+### Current Functionality/Supported Downloads
+1. [R5sdk](https://github.com/Mauler125/r5sdk) + [scripts_r5](https://github.com/Mauler125/scripts_r5)
+2. [FlowState AimTrainer + Scripts](https://github.com/ColombianGuy/r5_aimtrainer)
+3. Troubleshooting option to delete scripts prior to downloading current versions
 
 ## How to use this application
 
