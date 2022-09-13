@@ -72,7 +72,9 @@ func checkForUpdate(ghClient *github.Client, cacheDir string, currentVersion str
 	repoName := "R5ReloadedInstaller"
 	updateCheckDetailsFromDisk, err := loadUpdateCheckDetails(cacheDir)
 	if err != nil {
-		return true, "Error loading update details from disk", fmt.Errorf("error encountered loading update check details: %v", err)
+		if !os.IsNotExist(err) {
+			return true, "Error loading update details from disk", fmt.Errorf("error encountered loading update check details: %v", err)
+		}
 	}
 
 	useUpdateDetailsCache := false
@@ -88,18 +90,18 @@ func checkForUpdate(ghClient *github.Client, cacheDir string, currentVersion str
 		}
 	}
 
-	newUpdateCheckDetails := UpdateCheckDetails{
-		LastUpdateCheck: time.Now(),
-	}
+	newUpdateCheckDetails := UpdateCheckDetails{}
 
 	var latestVersionTag string
 	if useUpdateDetailsCache {
 		latestVersionTag = updateCheckDetailsFromDisk.LastRetrievedReleaseTag
+		newUpdateCheckDetails.LastUpdateCheck = updateCheckDetailsFromDisk.LastUpdateCheck
 	} else {
+		newUpdateCheckDetails.LastUpdateCheck = time.Now()
 		repoReleases, _, err := ghClient.Repositories.ListReleases(context.Background(), repoOwner, repoName, &github.ListOptions{})
 		if err != nil {
-			err := saveUpdateDetails(cacheDir, newUpdateCheckDetails)
-			if err != nil {
+			saveDetailsErr := saveUpdateDetails(cacheDir, newUpdateCheckDetails)
+			if saveDetailsErr != nil {
 				return false, "", err
 			}
 
@@ -155,7 +157,11 @@ func saveUpdateDetails(cacheDir string, details UpdateCheckDetails) error {
 func loadUpdateCheckDetails(cacheDir string) (UpdateCheckDetails, error) {
 	fileBytes, err := os.ReadFile(filepath.Join(cacheDir, "updateCheckDetails.json"))
 	if err != nil {
-		return UpdateCheckDetails{}, fmt.Errorf("error reading update details from disk: %v", err)
+		if os.IsNotExist(err) {
+			return UpdateCheckDetails{}, err
+		} else {
+			return UpdateCheckDetails{}, fmt.Errorf("error reading update details from disk: %v", err)
+		}
 	}
 
 	details := UpdateCheckDetails{}
