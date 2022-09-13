@@ -13,7 +13,7 @@ import (
 func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, progressMessage string) error {
 	archive, err := zip.OpenReader(zipFile)
 	if err != nil {
-		panic(fmt.Errorf("error opening zipfile %s: %v", zipFile, err))
+		return fmt.Errorf("error opening zipfile '%s': %v", zipFile, err)
 	}
 	defer archive.Close()
 
@@ -42,7 +42,7 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 		if f.FileInfo().IsDir() {
 			err := os.MkdirAll(filePath, os.ModePerm)
 			if err != nil {
-				return fmt.Errorf("error creating directory '%s' while extracting files from zip '%s': %v", filePath, zipFile, err)
+				return fmt.Errorf("error creating directory '%s' while extracting zip '%s': %v", filePath, zipFile, err)
 			}
 			pb.Incr()
 			continue

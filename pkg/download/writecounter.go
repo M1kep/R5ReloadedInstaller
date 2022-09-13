@@ -1,8 +1,8 @@
 package download
 
 import (
+	"fmt"
 	"github.com/gosuri/uiprogress"
-	"log"
 )
 
 // WriteTracker counts the number of bytes written to it. It implements to the io.Writer
@@ -22,17 +22,21 @@ func (wt *WriteTracker) Write(p []byte) (int, error) {
 
 	if (wt.Total > wt.nextUpdate || wt.Total == wt.ContentLength) && wt.ContentLength != 0 {
 		hundredthOfContentLen := wt.ContentLength / 100
-		wt.UpdateProgress()
+		err := wt.UpdateProgress()
+		if err != nil {
+			return n, err
+		}
 		wt.nextUpdate = (wt.Total/wt.ContentLength)*hundredthOfContentLen + hundredthOfContentLen
 	}
 	return n, nil
 }
 
-func (wt *WriteTracker) UpdateProgress() {
+func (wt *WriteTracker) UpdateProgress() error {
 	if wt.ContentLength != 0 {
 		err := wt.Pb.Set(wt.Total)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("error updating progress bar in writetracker: %v", err)
 		}
 	}
+	return nil
 }
