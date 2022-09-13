@@ -36,36 +36,46 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 		}
 
 		if !strings.HasPrefix(filePath, filepath.Clean(destinationPath)+string(os.PathSeparator)) {
-			return fmt.Errorf("invalid file path")
+			return fmt.Errorf("invalid file path '%s' while extracting '%s' from zip '%s'", filePath, f.Name, zipFile)
 		}
 
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(filePath, os.ModePerm)
+			err := os.MkdirAll(filePath, os.ModePerm)
+			if err != nil {
+				return fmt.Errorf("error creating directory '%s' while extracting files from zip '%s': %v", filePath, zipFile, err)
+			}
 			pb.Incr()
 			continue
 		}
 
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-			panic(err)
+			if err != nil {
+				return fmt.Errorf("error creating directory '%s' while extracting '%s' from zip '%s': %v", filepath.Dir(filePath), f.Name, zipFile, err)
+			}
 		}
 
-		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		err = func() error {
+			dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+			if err != nil {
+				return fmt.Errorf("error opening destination file while extracting '%s' from zip '%s': %v", filePath, zipFile, err)
+			}
+			defer dstFile.Close()
+
+			fileInArchive, err := f.Open()
+			if err != nil {
+				return fmt.Errorf("error opening file '%s' in zip '%s': %v", f.Name, zipFile, err)
+			}
+			defer fileInArchive.Close()
+
+			if _, err := io.Copy(dstFile, fileInArchive); err != nil {
+				return fmt.Errorf("error extracting file '%s' from zip '%s' to '%s': %v", f.Name, zipFile, dstFile.Name(), err)
+			}
+			pb.Incr()
+			return nil
+		}()
 		if err != nil {
-			panic(err)
+			return err
 		}
-
-		fileInArchive, err := f.Open()
-		if err != nil {
-			panic(err)
-		}
-
-		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
-			panic(err)
-		}
-		pb.Incr()
-
-		dstFile.Close()
-		fileInArchive.Close()
 	}
 	return nil
 }
