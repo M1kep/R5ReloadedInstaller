@@ -65,7 +65,7 @@ func main() {
 		"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
 	})
 	if err != nil {
-		fileLogger.Error().Err(fmt.Errorf("error gathering run options"))
+		fileLogger.Error().Err(fmt.Errorf("error gathering run options")).Msg("error")
 		util.LogErrorWithDialog(fmt.Errorf("error gathering run options"))
 		return
 	}
@@ -76,7 +76,7 @@ func main() {
 	if util.Contains(selectedOptions, "(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting") {
 		err := os.RemoveAll(filepath.Join(r5Folder, "platform/scripts"))
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error removing 'platform/scripts' folder: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error removing 'platform/scripts' folder: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error removing 'platform/scripts' folder: %v", err))
 			return
 		}
@@ -95,7 +95,7 @@ func main() {
 			"r5sdk",
 		)
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of sdk release: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error starting download of sdk release: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of sdk release: %v", err))
 			return
 		}
@@ -111,13 +111,13 @@ func main() {
 			"scripts_r5",
 		)
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of scripts: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error starting download of scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of scripts: %v", err))
 			return
 		}
 
 		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing SDK and Script downloads: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error encountered while performing SDK and Script downloads: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing SDK and Script downloads: %v", err))
 			return
 		}
@@ -125,7 +125,7 @@ func main() {
 		// Unzip SDK into R5Folder
 		err = util.UnzipFile(sdkOutputPath, r5Folder, false, "Extracting SDK")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping sdk: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error unzipping sdk: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error unzipping sdk: %v", err))
 			return
 		}
@@ -133,7 +133,7 @@ func main() {
 		// Unzip Scripts into platform/scripts
 		err = util.UnzipFile(scriptsRepoContentsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting scripts")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping scripts: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error unzipping scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error unzipping scripts: %v", err))
 			return
 		}
@@ -152,7 +152,7 @@ func main() {
 			"r5_aimtrainer",
 		)
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of aimtrainer release: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error starting download of aimtrainer release: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of aimtrainer release: %v", err))
 			return
 		}
@@ -168,13 +168,13 @@ func main() {
 			"r5_aimtrainer",
 		)
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of AimTrainer scripts: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error starting download of AimTrainer scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of AimTrainer scripts: %v", err))
 			return
 		}
 
 		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err))
 			return
 		}
@@ -182,7 +182,7 @@ func main() {
 		// Unzip AimTrainer deps into R5Folder
 		err = util.UnzipFile(aimTrainerReleaseOutput, r5Folder, false, "Extracting AimTrainer Deps")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer deps: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer deps: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error unzipping AimTrainer deps: %v", err))
 			return
 		}
@@ -190,7 +190,7 @@ func main() {
 		//Unzip AimTrainer Scripts into platform/scripts
 		err = util.UnzipFile(aimTrainerScriptsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting AimTrainer Scripts")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer scripts: %v", err))
+			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error unzipping AimTrainer scripts: %v", err))
 			return
 		}
