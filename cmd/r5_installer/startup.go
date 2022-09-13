@@ -90,12 +90,21 @@ func checkForUpdate(ghClient *github.Client, cacheDir string, currentVersion str
 		}
 	}
 
-	newUpdateCheckDetails := UpdateCheckDetails{}
+	if !semver.IsValid(currentVersion) {
+		return true, "Current version is invalid", fmt.Errorf("invalid current version provided '%s'", currentVersion)
+	}
 
+	newUpdateCheckDetails := UpdateCheckDetails{}
 	var latestVersionTag string
 	if useUpdateDetailsCache {
 		latestVersionTag = updateCheckDetailsFromDisk.LastRetrievedReleaseTag
 		newUpdateCheckDetails.LastUpdateCheck = updateCheckDetailsFromDisk.LastUpdateCheck
+
+		// If a new version was downloaded within the udpatecheck delay window(10 minutes)
+		// Then we should use and persist the current version
+		if semver.Compare(currentVersion, latestVersionTag) > 0 {
+			latestVersionTag = currentVersion
+		}
 	} else {
 		newUpdateCheckDetails.LastUpdateCheck = time.Now()
 		repoReleases, _, err := ghClient.Repositories.ListReleases(context.Background(), repoOwner, repoName, &github.ListOptions{})
@@ -106,10 +115,6 @@ func checkForUpdate(ghClient *github.Client, cacheDir string, currentVersion str
 			}
 
 			return false, "", fmt.Errorf("error listing releases for %s/%s: %v", repoOwner, repoName, err)
-		}
-
-		if !semver.IsValid(currentVersion) {
-			return true, "Current version is invalid", fmt.Errorf("invalid current version provided '%s'", currentVersion)
 		}
 
 		latestVersionTag = *(repoReleases[0].TagName)
