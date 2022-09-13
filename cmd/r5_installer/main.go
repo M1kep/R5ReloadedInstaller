@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	VERSION := "v0.1.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -31,6 +32,20 @@ func main() {
 	cacheDir, err := initializeDirectories(r5Folder)
 	if err != nil {
 		util.LogErrorWithDialog(err)
+		return
+	}
+
+	shouldExit, msg, err := checkForUpdate(ghClient, cacheDir, VERSION)
+	if msg != "" {
+		fmt.Println(msg)
+	}
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if shouldExit {
+		_ = dialog.Raise("Exiting due to update check. Please check console output.")
 		return
 	}
 
