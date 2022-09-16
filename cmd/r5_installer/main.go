@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.2.0"
+	VERSION := "v1.0.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -60,9 +60,10 @@ func main() {
 	}
 
 	selectedOptions, err := gatherRunOptions([]string{
-		"SDK + Scripts",
+		"SDK",
 		"Aim Trainer",
 		"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
+		"(DEV) Latest r5_scripts",
 	})
 	if err != nil {
 		fileLogger.Error().Err(fmt.Errorf("error gathering run options")).Msg("error")
@@ -82,7 +83,7 @@ func main() {
 		}
 	}
 
-	if util.Contains(selectedOptions, "SDK + Scripts") {
+	if util.Contains(selectedOptions, "SDK") {
 		// Download SDK Release
 		sdkOutputPath, err := download.StartLatestRepoReleaseDownload(
 			ghClient,
@@ -100,6 +101,22 @@ func main() {
 			return
 		}
 
+		if err := errGroup.Wait(); err != nil {
+			fileLogger.Error().Err(fmt.Errorf("error encountered while performing SDK download: %v", err)).Msg("error")
+			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing SDK download: %v", err))
+			return
+		}
+
+		// Unzip SDK into R5Folder
+		err = util.UnzipFile(sdkOutputPath, r5Folder, false, "Extracting SDK")
+		if err != nil {
+			fileLogger.Error().Err(fmt.Errorf("error unzipping sdk: %v", err)).Msg("error")
+			util.LogErrorWithDialog(fmt.Errorf("error unzipping sdk: %v", err))
+			return
+		}
+	}
+
+	if util.Contains(selectedOptions, "(DEV) Latest r5_scripts") {
 		// Download scripts_r5
 		scriptsRepoContentsOutput, err := download.StartLatestRepoContentsDownload(
 			ghClient,
@@ -113,20 +130,6 @@ func main() {
 		if err != nil {
 			fileLogger.Error().Err(fmt.Errorf("error starting download of scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of scripts: %v", err))
-			return
-		}
-
-		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing SDK and Script downloads: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing SDK and Script downloads: %v", err))
-			return
-		}
-
-		// Unzip SDK into R5Folder
-		err = util.UnzipFile(sdkOutputPath, r5Folder, false, "Extracting SDK")
-		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping sdk: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error unzipping sdk: %v", err))
 			return
 		}
 
