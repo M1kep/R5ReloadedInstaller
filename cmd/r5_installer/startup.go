@@ -135,9 +135,9 @@ func checkForUpdate(ghClient *github.Client, cacheDir string, currentVersion str
 		return false, "", err
 	}
 
-	if semver.Compare(currentVersion, latestVersionTag) > 0 {
+	if semver.Compare(currentVersion, latestVersionTag) < 0 {
 		if semver.Major(latestVersionTag) > semver.Major(currentVersion) {
-			return true, "New major version available. Please download latest release from https://github.com/M1kep/R5ReloadedInstaller/releases/latest", nil
+			return true, "New major version available. Browser will open to the following link after closing: https://github.com/M1kep/R5ReloadedInstaller/releases/latest", nil
 		}
 
 		return false, "New minor update is available. Consider downloading the latest release from https://github.com/M1kep/R5ReloadedInstaller/releases/latest", nil

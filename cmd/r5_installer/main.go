@@ -7,15 +7,17 @@ import (
 	"fmt"
 	"github.com/google/go-github/v47/github"
 	"github.com/gosuri/uiprogress"
+	"github.com/pkg/browser"
 	"github.com/rs/zerolog"
 	"github.com/tawesoft/golib/v2/dialog"
 	"golang.org/x/sync/errgroup"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
-	VERSION := "v1.0.0"
+	VERSION := "v0.7.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -55,7 +57,15 @@ func main() {
 	}
 
 	if shouldExit {
-		_ = dialog.Raise("Exiting due to update check. Please check console output.")
+		if strings.HasPrefix(msg, "New major version") {
+			err := browser.OpenURL("https://github.com/M1kep/R5ReloadedInstaller/releases/latest")
+			if err != nil {
+				fileLogger.Error().Err(fmt.Errorf("error opening browser to latest release: %v", err)).Msg("error")
+				_ = dialog.Error("Error opening browser to latest release. Please manually update from https://github.com/M1kep/R5ReloadedInstaller/releases/latest")
+				return
+			}
+		}
+		_ = dialog.Raise("Exiting due to update check.")
 		return
 	}
 
