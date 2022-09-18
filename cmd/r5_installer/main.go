@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.7.0"
+	VERSION := "v0.8.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -140,6 +140,12 @@ func main() {
 		if err != nil {
 			fileLogger.Error().Err(fmt.Errorf("error starting download of scripts: %v", err)).Msg("error")
 			util.LogErrorWithDialog(fmt.Errorf("error starting download of scripts: %v", err))
+			return
+		}
+
+		if err := errGroup.Wait(); err != nil {
+			fileLogger.Error().Err(fmt.Errorf("error encountered while performing r5_scripts download: %v", err)).Msg("error")
+			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing r5_scripts download: %v", err))
 			return
 		}
 
