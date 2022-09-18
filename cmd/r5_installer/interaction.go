@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/AlecAivazis/survey/v2"
 )
 
@@ -11,7 +12,6 @@ func gatherRunOptions(options []string) (selectedOptions []string, err error) {
 		Options: options,
 		Default: []int{
 			0,
-			1,
 		},
 	}
 
