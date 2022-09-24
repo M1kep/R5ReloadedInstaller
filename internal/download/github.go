@@ -9,20 +9,29 @@ import (
 	"path/filepath"
 )
 
-func StartLatestRepoReleaseDownload(ghClient *github.Client, eg *errgroup.Group, progressMessage string, cacheDirectory string, cacheName string, releaseFileName string, repoOwner string, repoName string) (outputPath string, err error) {
+func StartLatestRepoReleaseDownload(ghClient *github.Client, eg *errgroup.Group, progressMessage string, cacheDirectory string, cacheName string, releaseFileName string, repoOwner string, repoName string, includePreReleases bool) (outputPath string, err error) {
 	repoReleases, _, err := ghClient.Repositories.ListReleases(context.Background(), repoOwner, repoName, &github.ListOptions{})
 	if err != nil {
 		return "", fmt.Errorf("error listing releases for %s/%s: %v", repoOwner, repoName, err)
 	}
 
-	latestRelease := repoReleases[0]
-	downloadUrl := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/%s", repoOwner, repoName, *latestRelease.TagName, releaseFileName)
-	sdkOutputPath := filepath.Join(cacheDirectory, fmt.Sprintf("%s_%s.zip", cacheName, *latestRelease.TagName))
+	releaseToDownload := repoReleases[0]
+	if !includePreReleases {
+		for _, repo := range repoReleases {
+			if !*repo.Prerelease {
+				releaseToDownload = repo
+				break
+			}
+		}
+	}
+
+	downloadUrl := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/%s", repoOwner, repoName, *releaseToDownload.TagName, releaseFileName)
+	sdkOutputPath := filepath.Join(cacheDirectory, fmt.Sprintf("%s_%s.zip", cacheName, *releaseToDownload.TagName))
 
 	eg.Go(func() error {
 		err := download.DownloadFile(sdkOutputPath, downloadUrl, progressMessage)
 		if err != nil {
-			return fmt.Errorf("error downloading release(%s) for %s/%s: %v", *latestRelease.TagName, repoOwner, repoName, err)
+			return fmt.Errorf("error downloading release(%s) for %s/%s: %v", *releaseToDownload.TagName, repoOwner, repoName, err)
 		}
 		return nil
 	})

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"R5ReloadedInstaller/internal/download"
 	"R5ReloadedInstaller/pkg/util"
 	"R5ReloadedInstaller/pkg/validation"
 	"fmt"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.10.0"
+	VERSION := "v0.11.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -69,11 +68,25 @@ func main() {
 		return
 	}
 
+	//type optionConfig struct {
+	//	UIOption    string
+	//	UIPriority  int
+	//	RunPriority int
+	//}
+	//var options []optionConfig
+	//options = append(options, optionConfig{"SDK", 50, 300})
+	//options = append(options, optionConfig{"Aim Trainer", 100, 300})
+	//options = append(options, optionConfig{
+	//	"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
+	//	1000,
+	//	50,
+	//})
 	selectedOptions, err := gatherRunOptions([]string{
 		"SDK",
 		"Aim Trainer",
 		"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
 		"(DEV) Latest r5_scripts",
+		"SDK(Include Pre-Releases)",
 	})
 	if err != nil {
 		fileLogger.Error().Err(fmt.Errorf("error gathering run options")).Msg("error")
@@ -83,7 +96,7 @@ func main() {
 
 	uiprogress.Start()
 	errGroup := new(errgroup.Group)
-	// PHASE 1
+
 	if util.Contains(selectedOptions, "(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting") {
 		err := os.RemoveAll(filepath.Join(r5Folder, "platform/scripts"))
 		if err != nil {
@@ -94,123 +107,63 @@ func main() {
 	}
 
 	if util.Contains(selectedOptions, "SDK") {
-		// Download SDK Release
-		sdkOutputPath, err := download.StartLatestRepoReleaseDownload(
+		err := ProcessSDK(
 			ghClient,
 			errGroup,
-			"Downloading SDK",
 			cacheDir,
-			"sdk-depot",
-			"depot.zip",
-			"Mauler125",
-			"r5sdk",
+			r5Folder,
+			false,
 		)
+
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of sdk release: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error starting download of sdk release: %v", err))
+			fileLogger.Error().Err(err).Msg("error")
+			util.LogErrorWithDialog(err)
 			return
 		}
+	}
 
-		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing SDK download: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing SDK download: %v", err))
-			return
-		}
+	if util.Contains(selectedOptions, "SDK(Include Pre-Releases)") {
+		err := ProcessSDK(
+			ghClient,
+			errGroup,
+			cacheDir,
+			r5Folder,
+			true,
+		)
 
-		// Unzip SDK into R5Folder
-		err = util.UnzipFile(sdkOutputPath, r5Folder, false, "Extracting SDK")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping sdk: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error unzipping sdk: %v", err))
+			fileLogger.Error().Err(err).Msg("error")
+			util.LogErrorWithDialog(err)
 			return
 		}
 	}
 
 	if util.Contains(selectedOptions, "(DEV) Latest r5_scripts") {
-		// Download scripts_r5
-		scriptsRepoContentsOutput, err := download.StartLatestRepoContentsDownload(
+		err := ProcessLatestR5Scripts(
 			ghClient,
 			errGroup,
-			"Downloading Scripts",
 			cacheDir,
-			"scripts",
-			"Mauler125",
-			"scripts_r5",
+			r5Folder,
 		)
-		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of scripts: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error starting download of scripts: %v", err))
-			return
-		}
 
-		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing r5_scripts download: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing r5_scripts download: %v", err))
-			return
-		}
-
-		// Unzip Scripts into platform/scripts
-		err = util.UnzipFile(scriptsRepoContentsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting scripts")
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping scripts: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error unzipping scripts: %v", err))
+			fileLogger.Error().Err(err).Msg("error")
+			util.LogErrorWithDialog(err)
 			return
 		}
 	}
 
 	if util.Contains(selectedOptions, "Aim Trainer") {
-		// Download Aim Trainer release
-		aimTrainerReleaseOutput, err := download.StartLatestRepoReleaseDownload(
+		err := ProcessAimTrainer(
 			ghClient,
 			errGroup,
-			"Downloading Aim Trainer",
 			cacheDir,
-			"aimtrainer-deps",
-			"Flowstate.-.Required.Files.zip",
-			"ColombianGuy",
-			"r5_aimtrainer",
+			r5Folder,
 		)
-		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of aimtrainer release: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error starting download of aimtrainer release: %v", err))
-			return
-		}
 
-		// Download Aim trainer contents
-		aimTrainerScriptsOutput, err := download.StartLatestRepoContentsDownload(
-			ghClient,
-			errGroup,
-			"Downloading AimTrainer Scripts",
-			cacheDir,
-			"scripts",
-			"ColombianGuy",
-			"r5_aimtrainer",
-		)
 		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error starting download of AimTrainer scripts: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error starting download of AimTrainer scripts: %v", err))
-			return
-		}
-
-		if err := errGroup.Wait(); err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err))
-			return
-		}
-
-		// Unzip AimTrainer deps into R5Folder
-		err = util.UnzipFile(aimTrainerReleaseOutput, r5Folder, false, "Extracting AimTrainer Deps")
-		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer deps: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error unzipping AimTrainer deps: %v", err))
-			return
-		}
-
-		//Unzip AimTrainer Scripts into platform/scripts
-		err = util.UnzipFile(aimTrainerScriptsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting AimTrainer Scripts")
-		if err != nil {
-			fileLogger.Error().Err(fmt.Errorf("error unzipping AimTrainer scripts: %v", err)).Msg("error")
-			util.LogErrorWithDialog(fmt.Errorf("error unzipping AimTrainer scripts: %v", err))
+			fileLogger.Error().Err(err).Msg("error")
+			util.LogErrorWithDialog(err)
 			return
 		}
 	}
