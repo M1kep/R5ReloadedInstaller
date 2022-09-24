@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.9.0"
+	VERSION := "v0.10.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -166,7 +166,7 @@ func main() {
 			"Downloading Aim Trainer",
 			cacheDir,
 			"aimtrainer-deps",
-			"AimTrainerRequiredFiles.zip",
+			"Flowstate.-.Required.Files.zip",
 			"ColombianGuy",
 			"r5_aimtrainer",
 		)
