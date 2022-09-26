@@ -21,12 +21,13 @@ func (wt *WriteTracker) Write(p []byte) (int, error) {
 	wt.Total += n
 
 	if (wt.Total > wt.nextUpdate || wt.Total == wt.ContentLength) && wt.ContentLength != 0 {
-		hundredthOfContentLen := wt.ContentLength / 100
+		updateIncrementSize := wt.ContentLength / 100
 		err := wt.UpdateProgress()
 		if err != nil {
 			return n, err
 		}
-		wt.nextUpdate = (wt.Total/wt.ContentLength)*hundredthOfContentLen + hundredthOfContentLen
+
+		wt.nextUpdate = wt.nextUpdate + updateIncrementSize
 	}
 	return n, nil
 }
