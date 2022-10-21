@@ -67,50 +67,50 @@ func ProcessLatestR5Scripts(ghClient *github.Client, errGroup *errgroup.Group, c
 	return nil
 }
 
-func ProcessAimTrainer(ghClient *github.Client, errGroup *errgroup.Group, cacheDir string, r5Folder string) error {
-	aimTrainerReleaseOutput, err := download.StartLatestRepoReleaseDownload(
+func ProcessFlowstate(ghClient *github.Client, errGroup *errgroup.Group, cacheDir string, r5Folder string) error {
+	flowstateReleaseOutput, err := download.StartLatestRepoReleaseDownload(
 		ghClient,
 		errGroup,
-		"Downloading Aim Trainer",
+		"Downloading FlowState Required Files",
 		cacheDir,
-		"aimtrainer-deps",
+		"flowstate-deps",
 		"Flowstate.-.Required.Files.zip",
 		"ColombianGuy",
-		"r5_aimtrainer",
+		"r5_flowstate",
 		false,
 	)
 	if err != nil {
-		return fmt.Errorf("error starting download of aimtrainer release: %v", err)
+		return fmt.Errorf("error starting download of Flowstate release: %v", err)
 	}
 
 	// Download Aim trainer contents
-	aimTrainerScriptsOutput, err := download.StartLatestRepoContentsDownload(
+	flowstateScriptsOutput, err := download.StartLatestRepoContentsDownload(
 		ghClient,
 		errGroup,
-		"Downloading AimTrainer Scripts",
+		"Downloading Latest Flowstate Scripts",
 		cacheDir,
 		"scripts",
 		"ColombianGuy",
-		"r5_aimtrainer",
+		"r5_flowstate",
 	)
 	if err != nil {
-		return fmt.Errorf("error starting download of AimTrainer scripts: %v", err)
+		return fmt.Errorf("error starting download of Flowstate scripts: %v", err)
 	}
 
 	if err := errGroup.Wait(); err != nil {
-		return fmt.Errorf("error encountered while performing AimTrainer downloads: %v", err)
+		return fmt.Errorf("error encountered while performing Flowstate downloads: %v", err)
 	}
 
-	// Unzip AimTrainer deps into R5Folder
-	err = util.UnzipFile(aimTrainerReleaseOutput, r5Folder, false, "Extracting AimTrainer Deps")
+	// Unzip Flowstate deps into R5Folder
+	err = util.UnzipFile(flowstateReleaseOutput, r5Folder, false, "Extracting Flowstate Deps")
 	if err != nil {
-		return fmt.Errorf("error unzipping AimTrainer deps: %v", err)
+		return fmt.Errorf("error unzipping Flowstate deps: %v", err)
 	}
 
-	//Unzip AimTrainer Scripts into platform/scripts
-	err = util.UnzipFile(aimTrainerScriptsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting AimTrainer Scripts")
+	//Unzip Flowstate Scripts into platform/scripts
+	err = util.UnzipFile(flowstateScriptsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting Flowstate Scripts")
 	if err != nil {
-		return fmt.Errorf("error unzipping AimTrainer scripts: %v", err)
+		return fmt.Errorf("error unzipping Flowstate scripts: %v", err)
 	}
 
 	return nil

@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.13.0"
+	VERSION := "v0.14.0"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
@@ -75,7 +75,7 @@ func main() {
 	//}
 	//var options []optionConfig
 	//options = append(options, optionConfig{"SDK", 50, 300})
-	//options = append(options, optionConfig{"Aim Trainer", 100, 300})
+	//options = append(options, optionConfig{"Latest Flowstate Scripts", 100, 300})
 	//options = append(options, optionConfig{
 	//	"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
 	//	1000,
@@ -83,7 +83,7 @@ func main() {
 	//})
 	selectedOptions, err := gatherRunOptions([]string{
 		"SDK",
-		"Aim Trainer",
+		"Latest Flowstate Scripts",
 		"(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting",
 		"(DEV) Latest r5_scripts",
 		"SDK(Include Pre-Releases)",
@@ -153,8 +153,8 @@ func main() {
 		}
 	}
 
-	if util.Contains(selectedOptions, "Aim Trainer") {
-		err := ProcessAimTrainer(
+	if util.Contains(selectedOptions, "Latest Flowstate Scripts") {
+		err := ProcessFlowstate(
 			ghClient,
 			errGroup,
 			cacheDir,
