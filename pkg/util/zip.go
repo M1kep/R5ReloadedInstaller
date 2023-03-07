@@ -60,7 +60,12 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 				if strings.HasSuffix(filePath, "materials\\correction\\mp_rr_desertlands_mu1_hdr.raw_hdr") {
 					return nil
 				}
-				return fmt.Errorf("error opening destination file while extracting '%s' from zip '%s': %v", filePath, zipFile, err)
+
+				fileInfo, fInfoErr := os.Stat(filePath)
+				if fInfoErr != nil {
+					return fmt.Errorf("error opening destination file while extracting '%s' from zip '%s': %v", filePath, zipFile, err)
+				}
+				return fmt.Errorf("error opening destination file(with permissions %s) while extracting '%s' from zip '%s': %v", fileInfo.Mode(), filePath, zipFile, err)
 			}
 			defer dstFile.Close()
 
