@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"github.com/gosuri/uiprogress"
+	"github.com/tawesoft/golib/v2/dialog"
 	"io"
 	"os"
 	"path/filepath"
@@ -64,6 +65,11 @@ func UnzipFile(zipFile string, destinationPath string, stripFirstFolder bool, pr
 				fileInfo, fInfoErr := os.Stat(filePath)
 				if fInfoErr != nil {
 					return fmt.Errorf("error opening destination file while extracting '%s' from zip '%s': %v", filePath, zipFile, err)
+				}
+
+				fileMode := fileInfo.Mode()
+				if fileMode != 292 {
+					_ = dialog.Warning("Failed to unzip release, file is not read-only. Confirm torrent is no longer seeding and the launcher is not started")
 				}
 				return fmt.Errorf("error opening destination file(with permissions %s) while extracting '%s' from zip '%s': %v", fileInfo.Mode(), filePath, zipFile, err)
 			}

@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	VERSION := "v0.15.0"
+	VERSION := "v0.15.1"
 	var r5Folder string
 	ghClient := github.NewClient(nil)
 
