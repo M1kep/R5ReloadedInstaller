@@ -4,7 +4,7 @@ import (
 	"R5ReloadedInstaller/pkg/download"
 	"context"
 	"fmt"
-	"github.com/google/go-github/v47/github"
+	"github.com/google/go-github/v52/github"
 	"golang.org/x/sync/errgroup"
 	"path/filepath"
 )

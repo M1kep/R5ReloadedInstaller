@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/go-github/v47/github"
+	"github.com/google/go-github/v52/github"
 	"github.com/tawesoft/golib/v2/dialog"
 	"golang.org/x/mod/semver"
 	"os"

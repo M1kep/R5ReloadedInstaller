@@ -4,7 +4,7 @@ import (
 	"R5ReloadedInstaller/pkg/util"
 	"R5ReloadedInstaller/pkg/validation"
 	"fmt"
-	"github.com/google/go-github/v47/github"
+	"github.com/google/go-github/v52/github"
 	"github.com/gosuri/uiprogress"
 	"github.com/pkg/browser"
 	"github.com/rs/zerolog"
@@ -95,10 +95,9 @@ func main() {
 	}
 
 	uiprogress.Start()
-	errGroup := new(errgroup.Group)
 	processManager := ProcessManager{
 		ghClient: ghClient,
-		errGroup: errGroup,
+		errGroup: new(errgroup.Group),
 		cacheDir: cacheDir,
 		r5Folder: r5Folder,
 	}
