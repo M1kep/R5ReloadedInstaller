@@ -96,6 +96,12 @@ func main() {
 
 	uiprogress.Start()
 	errGroup := new(errgroup.Group)
+	processManager := ProcessManager{
+		ghClient: ghClient,
+		errGroup: errGroup,
+		cacheDir: cacheDir,
+		r5Folder: r5Folder,
+	}
 
 	if util.Contains(selectedOptions, "(Troubleshooting) Clean Scripts - Deletes 'platform/scripts' prior to extracting") {
 		err := os.RemoveAll(filepath.Join(r5Folder, "platform/scripts"))
@@ -107,13 +113,7 @@ func main() {
 	}
 
 	if util.Contains(selectedOptions, "SDK") {
-		err := ProcessSDK(
-			ghClient,
-			errGroup,
-			cacheDir,
-			r5Folder,
-			false,
-		)
+		err := processManager.ProcessSDK(false)
 
 		if err != nil {
 			fileLogger.Error().Err(err).Msg("error")
@@ -123,13 +123,7 @@ func main() {
 	}
 
 	if util.Contains(selectedOptions, "SDK(Include Pre-Releases)") {
-		err := ProcessSDK(
-			ghClient,
-			errGroup,
-			cacheDir,
-			r5Folder,
-			true,
-		)
+		err := processManager.ProcessSDK(true)
 
 		if err != nil {
 			fileLogger.Error().Err(err).Msg("error")
@@ -139,12 +133,7 @@ func main() {
 	}
 
 	if util.Contains(selectedOptions, "(DEV) Latest r5_scripts") {
-		err := ProcessLatestR5Scripts(
-			ghClient,
-			errGroup,
-			cacheDir,
-			r5Folder,
-		)
+		err := processManager.ProcessLatestR5Scripts()
 
 		if err != nil {
 			fileLogger.Error().Err(err).Msg("error")
@@ -154,12 +143,7 @@ func main() {
 	}
 
 	if util.Contains(selectedOptions, "Latest Flowstate Scripts") {
-		err := ProcessFlowstate(
-			ghClient,
-			errGroup,
-			cacheDir,
-			r5Folder,
-		)
+		err := processManager.ProcessFlowstate()
 
 		if err != nil {
 			fileLogger.Error().Err(err).Msg("error")

@@ -9,13 +9,20 @@ import (
 	"path/filepath"
 )
 
-func ProcessSDK(ghClient *github.Client, errGroup *errgroup.Group, cacheDir string, r5Folder string, includePreReleases bool) error {
+type ProcessManager struct {
+	ghClient *github.Client
+	errGroup *errgroup.Group
+	cacheDir string
+	r5Folder string
+}
+
+func (pm *ProcessManager) ProcessSDK(includePreReleases bool) error {
 	// Download SDK Release
 	sdkOutputPath, err := download.StartLatestRepoReleaseDownload(
-		ghClient,
-		errGroup,
+		pm.ghClient,
+		pm.errGroup,
 		"Downloading SDK",
-		cacheDir,
+		pm.cacheDir,
 		"sdk-depot",
 		"depot.zip",
 		"Mauler125",
@@ -26,12 +33,12 @@ func ProcessSDK(ghClient *github.Client, errGroup *errgroup.Group, cacheDir stri
 		return fmt.Errorf("error starting download of sdk release: %v", err)
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	if err := pm.errGroup.Wait(); err != nil {
 		return fmt.Errorf("error encountered while performing SDK download: %v", err)
 	}
 
 	// Unzip SDK into R5Folder
-	err = util.UnzipFile(sdkOutputPath, r5Folder, false, "Extracting SDK")
+	err = util.UnzipFile(sdkOutputPath, pm.r5Folder, false, "Extracting SDK")
 	if err != nil {
 		return fmt.Errorf("error unzipping sdk: %v", err)
 	}
@@ -39,13 +46,13 @@ func ProcessSDK(ghClient *github.Client, errGroup *errgroup.Group, cacheDir stri
 	return nil
 }
 
-func ProcessLatestR5Scripts(ghClient *github.Client, errGroup *errgroup.Group, cacheDir string, r5Folder string) error {
+func (pm *ProcessManager) ProcessLatestR5Scripts() error {
 	// Download scripts_r5
 	scriptsRepoContentsOutput, err := download.StartLatestRepoContentsDownload(
-		ghClient,
-		errGroup,
+		pm.ghClient,
+		pm.errGroup,
 		"Downloading Scripts",
-		cacheDir,
+		pm.cacheDir,
 		"scripts",
 		"Mauler125",
 		"scripts_r5",
@@ -54,12 +61,12 @@ func ProcessLatestR5Scripts(ghClient *github.Client, errGroup *errgroup.Group, c
 		return fmt.Errorf("error starting download of scripts: %v", err)
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	if err := pm.errGroup.Wait(); err != nil {
 		return fmt.Errorf("error encountered while performing r5_scripts download: %v", err)
 	}
 
 	// Unzip Scripts into platform/scripts
-	err = util.UnzipFile(scriptsRepoContentsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting scripts")
+	err = util.UnzipFile(scriptsRepoContentsOutput, filepath.Join(pm.r5Folder, "platform/scripts"), true, "Extracting scripts")
 	if err != nil {
 		return fmt.Errorf("error unzipping scripts: %v", err)
 	}
@@ -67,12 +74,12 @@ func ProcessLatestR5Scripts(ghClient *github.Client, errGroup *errgroup.Group, c
 	return nil
 }
 
-func ProcessFlowstate(ghClient *github.Client, errGroup *errgroup.Group, cacheDir string, r5Folder string) error {
+func (pm *ProcessManager) ProcessFlowstate() error {
 	flowstateReleaseOutput, err := download.StartLatestRepoReleaseDownload(
-		ghClient,
-		errGroup,
+		pm.ghClient,
+		pm.errGroup,
 		"Downloading FlowState Required Files",
-		cacheDir,
+		pm.cacheDir,
 		"flowstate-deps",
 		"Flowstate.-.Required.Files.zip",
 		"ColombianGuy",
@@ -85,10 +92,10 @@ func ProcessFlowstate(ghClient *github.Client, errGroup *errgroup.Group, cacheDi
 
 	// Download Aim trainer contents
 	flowstateScriptsOutput, err := download.StartLatestRepoContentsDownload(
-		ghClient,
-		errGroup,
+		pm.ghClient,
+		pm.errGroup,
 		"Downloading Latest Flowstate Scripts",
-		cacheDir,
+		pm.cacheDir,
 		"scripts",
 		"ColombianGuy",
 		"r5_flowstate",
@@ -97,18 +104,18 @@ func ProcessFlowstate(ghClient *github.Client, errGroup *errgroup.Group, cacheDi
 		return fmt.Errorf("error starting download of Flowstate scripts: %v", err)
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	if err := pm.errGroup.Wait(); err != nil {
 		return fmt.Errorf("error encountered while performing Flowstate downloads: %v", err)
 	}
 
 	// Unzip Flowstate deps into R5Folder
-	err = util.UnzipFile(flowstateReleaseOutput, r5Folder, false, "Extracting Flowstate Deps")
+	err = util.UnzipFile(flowstateReleaseOutput, pm.r5Folder, false, "Extracting Flowstate Deps")
 	if err != nil {
 		return fmt.Errorf("error unzipping Flowstate deps: %v", err)
 	}
 
 	//Unzip Flowstate Scripts into platform/scripts
-	err = util.UnzipFile(flowstateScriptsOutput, filepath.Join(r5Folder, "platform/scripts"), true, "Extracting Flowstate Scripts")
+	err = util.UnzipFile(flowstateScriptsOutput, filepath.Join(pm.r5Folder, "platform/scripts"), true, "Extracting Flowstate Scripts")
 	if err != nil {
 		return fmt.Errorf("error unzipping Flowstate scripts: %v", err)
 	}
