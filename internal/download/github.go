@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 )
 
+// StartLatestRepoReleaseDownload downloads the latest release from a GitHub repository.
+// ghClient is the GitHub client to use for the request.
+// eg is the errgroup.Group to add the download to.
 func StartLatestRepoReleaseDownload(ghClient *github.Client, eg *errgroup.Group, progressMessage string, cacheDirectory string, cacheName string, releaseFileName string, repoOwner string, repoName string, includePreReleases bool) (outputPath string, err error) {
 	repoReleases, _, err := ghClient.Repositories.ListReleases(context.Background(), repoOwner, repoName, &github.ListOptions{})
 	if err != nil {
