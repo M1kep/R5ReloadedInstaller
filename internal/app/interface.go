@@ -1,10 +1,12 @@
 package app
 
-import "gioui.org/layout"
+import (
+	"gioui.org/layout"
+)
 
 type Page interface {
-	// Name returns the name of the page
-	Name() string
+	// ID returns the page ID
+	ID() string
 
 	// HandleUserInteractions handles user interactions is called just before the page is rendered
 	HandleUserInteractions()
@@ -14,8 +16,28 @@ type Page interface {
 	Layout(layout.Context) layout.Dimensions
 
 	// OnPageLoad is called when the page is loaded
-	OnPageLoad()
+	OnPageLoad(manager WindowManager)
 
 	// OnPageUnload is called when the page is unloaded
 	OnPageUnload()
+
+	// SetWindowManager sets the window manager
+	//SetWindowManager(manager WindowManager)
+}
+
+type WindowManager interface {
+	// SetCurrentPage sets the current page
+	SetCurrentPage(page Page)
+
+	// SetCurrentPageByID sets the current page by ID
+	SetCurrentPageByID(id string)
+
+	// KnowsPage returns true if the window manager knows the page
+	KnowsPage(id string) bool
+
+	// GetCurrentPage returns the current page
+	GetCurrentPage() Page
+
+	// PreviousPage goes to the previous page
+	PreviousPage()
 }

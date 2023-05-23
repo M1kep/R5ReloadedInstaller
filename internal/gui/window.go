@@ -11,6 +11,8 @@ import (
 
 type WindowManager struct {
 	Window      *giouiapp.Window
+	PageTable   map[string]app.Page
+	PageHistory []string
 	currentPage app.Page
 	ops         op.Ops
 }
@@ -22,10 +24,11 @@ func NewWindowManager(title string, startPage app.Page) *WindowManager {
 	)
 
 	windowManager := &WindowManager{
-		Window: w,
+		Window:      w,
+		PageTable:   map[string]app.Page{},
+		PageHistory: []string{},
 	}
 	windowManager.SetCurrentPage(startPage)
-
 	return windowManager
 }
 
@@ -37,11 +40,32 @@ func (w *WindowManager) SetCurrentPage(page app.Page) {
 
 	// Load the new page
 	w.currentPage = page
-	w.currentPage.OnPageLoad()
+	w.currentPage.OnPageLoad(w)
+	//w.currentPage.SetWindowManager()
+	w.PageTable[w.currentPage.ID()] = w.currentPage
+	w.PageHistory = append(w.PageHistory, w.currentPage.ID())
+}
+
+func (w *WindowManager) SetCurrentPageByID(id string) {
+	w.SetCurrentPage(w.PageTable[id])
+}
+
+func (w *WindowManager) KnowsPage(id string) bool {
+	_, ok := w.PageTable[id]
+	return ok
 }
 
 func (w *WindowManager) GetCurrentPage() app.Page {
 	return w.currentPage
+}
+
+func (w *WindowManager) PreviousPage() {
+	if len(w.PageHistory) < 2 {
+		return
+	}
+
+	w.PageHistory = w.PageHistory[:len(w.PageHistory)-1]
+	w.SetCurrentPage(w.PageTable[w.PageHistory[len(w.PageHistory)-1]])
 }
 
 func (w *WindowManager) Run() error {

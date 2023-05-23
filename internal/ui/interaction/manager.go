@@ -24,8 +24,8 @@ func (m *Manager) RegisterBoolHandler(bool *widget.Bool, handler func()) {
 
 func (m *Manager) RunHandlers() {
 	// Checkboxes come first as they may change values referenced by other handlers
-	for bool, handler := range m.boolHandlers {
-		if bool.Changed() {
+	for b, handler := range m.boolHandlers {
+		if b.Changed() {
 			handler()
 		}
 	}
