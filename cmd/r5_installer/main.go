@@ -19,74 +19,6 @@ import (
 	"strings"
 )
 
-//func desktopLayout(version string) *fyne.Container {
-//	title := canvas.NewText("R5Reloaded Installer", color.RGBA{A: 255})
-//	title.Alignment = fyne.TextAlignCenter
-//	title.TextStyle.Bold = true
-//	title.TextSize = 30
-//
-//	return container.NewGridWithRows(3,
-//		title,
-//		layout.NewSpacer(),
-//		canvas.NewText("Version: "+version, color.RGBA{A: 255}),
-//		canvas.NewText("By M1kep", color.RGBA{A: 255}),
-//	)
-//}
-
-//func guiStartup() {
-//	mainPage := page2.MainPage{}
-//	windowManager := gui.NewWindowManager("R5Reloaded Installer", &mainPage)
-//	if err := windowManager.Run(); err != nil {
-//		log.Fatal(err)
-//	}
-
-//w := app.NewWindow(
-//	app.Title("R5Reloaded Installer"),
-//	app.Size(unit.Dp(400), unit.Dp(600)),
-//)
-
-//var ops op.Ops
-//// startButton is a clickable widget
-//var startButton widget.Clickable
-//
-//for e := range w.Events() {
-//	switch e := e.(type) {
-//
-//	case system.FrameEvent:
-//		fmt.Println("FrameEvent", e)
-//		// ops are the operations that are sent to the window
-//
-//		th := material.NewTheme(gofont.Collection())
-//		// FrameEvent is sent when the window should be redrawn.
-//		gtx := layout.NewContext(&ops, e)
-//
-//		layout.Flex{
-//			Axis:    layout.Vertical,
-//			Spacing: layout.SpaceStart,
-//		}.Layout(gtx,
-//			layout.Rigid(
-//				func(gtx layout.Context) layout.Dimensions {
-//					btn := material.Button(th, &startButton, "Start")
-//					return btn.Layout(gtx)
-//				}),
-//			layout.Rigid(
-//				layout.Spacer{Height: unit.Dp(10)}.Layout,
-//			),
-//		)
-//
-//		e.Frame(gtx.Ops)
-//		//case system.DestroyEvent:
-//		//	return e.Err
-//	}
-//}
-
-//if err := gui.Draw(w); err != nil {
-//	log.Fatal(err)
-//}
-
-//os.Exit(0)
-//}
-
 func main() {
 	VERSION := "v0.15.1"
 	var r5Folder string
@@ -101,36 +33,6 @@ func main() {
 		os.Exit(0)
 	}()
 	app.Main()
-
-	//myApp := app.New()
-	//myWindow := myApp.NewWindow("R5Reloaded Installer")
-
-	//titleText := canvas.NewText("R5Reloaded Installer", color.RGBA{R: 255, A: 255})
-	//topTitle := container.New(layout.NewHBoxLayout(), titleText)
-	//tabs := container.NewAppTabs(
-	//	container.NewTabItem("Installation", canvas.NewRectangle(color.RGBA{R: 255})),
-	//	container.NewTabItem("Settings",
-	//		container.NewGridWithColumns(2,
-	//			container.NewGridWithRows(2,
-	//				randomRectangles(2)...,
-	//			),
-	//			container.NewGridWithRows(2,
-	//				randomRectangles(2)...,
-	//			),
-	//		),
-	//	),
-	//)
-
-	//myWindow.SetContent(desktopLayout(VERSION))
-	//myCanvas := myWindow.Canvas()
-	//content := container.New(layout.NewGridLayout(3))
-	//content.Add(canvas.NewText("R5Reloaded Installer", color.RGBA{A: 255}))
-	//content.Add(canvas.NewText("Version: "+VERSION, color.RGBA{A: 255}))
-	//content.Add(canvas.NewText("By M1kep", color.RGBA{A: 255}))
-	//myCanvas.SetContent(content)
-
-	//myWindow.Resize(fyne.NewSize(900, 900))
-	//myWindow.ShowAndRun()
 
 	r5Folder, err := getValidatedR5Folder()
 	if err != nil {
